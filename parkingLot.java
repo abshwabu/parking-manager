@@ -49,24 +49,24 @@ class ParkingLot {
     }
 
     void moveCarToFile(String sourceFileName, String destinationFileName, String cardNumber) {
-        try {
-            File inputFile = new File(sourceFileName);
-            File outputFile = new File(destinationFileName);
-            Scanner scanner = new Scanner(inputFile);
-
-            FileWriter fileWriter = new FileWriter(outputFile, true);
-            PrintWriter printWriter = new PrintWriter(fileWriter);
-            while (scanner.hasNextLine()) {
-                String data = scanner.nextLine();
-                if (data.split(",")[0].equals(cardNumber)) {
-                    printWriter.println(data);
-                }
+    try {
+        File inputFile = new File(sourceFileName);
+        File outputFile = new File(destinationFileName);
+        Scanner scanner = new Scanner(inputFile);
+        FileWriter fileWriter = new FileWriter(outputFile, true);
+        PrintWriter printWriter = new PrintWriter(fileWriter);
+        while (scanner.hasNextLine()) {
+            String data = scanner.nextLine();
+            if (data.startsWith(cardNumber + ",")) {
+                printWriter.println(data);
             }
-            printWriter.close();
-            scanner.close();
-            inputFile.delete();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+        printWriter.close();
+        scanner.close();
+        inputFile.delete();
+    } catch (IOException e) {
+        e.printStackTrace();
     }
+}
+
 }
