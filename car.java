@@ -1,6 +1,6 @@
 import java.io.Serializable;
 
-class Car implements Serializable {
+public class Car implements Serializable {
     private String cardNumber;
     private long entryTime;
 

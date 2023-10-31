@@ -1,9 +1,7 @@
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
-class ParkingLot {
+public class ParkingLot {
     private Map<String, Car> parkedCars;
     private int basePrice;
     private int hourlyPrice;
@@ -17,7 +15,7 @@ class ParkingLot {
     public void carEnter(String cardNumber, long entryTime) {
         Car newCar = new Car(cardNumber, entryTime);
         parkedCars.put(cardNumber, newCar);
-        saveCarsToFile("parkinglot.txt", parkedCars);
+        saveCarsToFile("parkinglot.txt", new ArrayList<>(parkedCars.values()));
     }
 
     public double carExit(String cardNumber, long exitTime) {
@@ -35,11 +33,15 @@ class ParkingLot {
         }
     }
 
-    private void saveCarsToFile(String fileName, Map<String, Car> cars) {
+    private void saveCarsToFile(String fileName, List<Car> cars) {
+        Map<String, Car> carMap = new HashMap<>();
+        for (Car car : cars) {
+            carMap.put(car.getCardNumber(), car);
+        }
         try {
-            FileWriter fileWriter = new FileWriter(fileName, true);
+            FileWriter fileWriter = new FileWriter(fileName);
             PrintWriter printWriter = new PrintWriter(fileWriter);
-            for (Car car : cars.values()) {
+            for (Car car : cars) {
                 printWriter.println(car.getCardNumber() + "," + car.getEntryTime());
             }
             printWriter.close();
@@ -49,24 +51,36 @@ class ParkingLot {
     }
 
     void moveCarToFile(String sourceFileName, String destinationFileName, String cardNumber) {
-    try {
-        File inputFile = new File(sourceFileName);
-        File outputFile = new File(destinationFileName);
-        Scanner scanner = new Scanner(inputFile);
-        FileWriter fileWriter = new FileWriter(outputFile, true);
-        PrintWriter printWriter = new PrintWriter(fileWriter);
-        while (scanner.hasNextLine()) {
-            String data = scanner.nextLine();
-            if (data.startsWith(cardNumber + ",")) {
-                printWriter.println(data);
+        try {
+            List<Car> tempCars = new ArrayList<>();
+            File inputFile = new File(sourceFileName);
+            Scanner scanner = new Scanner(inputFile);
+            while (scanner.hasNextLine()) {
+                String data = scanner.nextLine();
+                String[] parts = data.split(",");
+                if (parts[0].equals(cardNumber)) {
+                    writeToFile(destinationFileName, data);
+                } else {
+                    Car car = new Car(parts[0], Long.parseLong(parts[1]));
+                    tempCars.add(car);
+                }
             }
+            scanner.close();
+            inputFile.delete();
+            saveCarsToFile(sourceFileName, tempCars);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        printWriter.close();
-        scanner.close();
-        inputFile.delete();
-    } catch (IOException e) {
-        e.printStackTrace();
     }
-}
 
+    private void writeToFile(String fileName, String data) {
+        try {
+            FileWriter fileWriter = new FileWriter(fileName, true);
+            PrintWriter printWriter = new PrintWriter(fileWriter);
+            printWriter.println(data);
+            printWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
